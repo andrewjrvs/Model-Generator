@@ -9,6 +9,8 @@ generated/groovy/build.gradle
 
 generated/kotlin/build.gradle
 
+generated/*
+
 tests/.gradle/
 
 *.gradle/
