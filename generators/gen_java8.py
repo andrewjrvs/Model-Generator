@@ -42,6 +42,7 @@ class gen_java8:
             model.imports.insert(0,imp[:-5])
         return model
     
+    # Get model reference within collection -> ex:  "List<Common/Thing.json>" = "Common/Thing.json"
     def get_json_ref(self, s):
         return s[s.rfind('<')+1:s.find('>')] if ('<' in s) else s
 
@@ -68,7 +69,7 @@ class gen_java8:
         lines.append("public " + model.identifier + "() {")
         for p in model.properties:
             init = self.init_prop(p)
-            if init: lines.append("    this." + init + ";")
+            if len(init) > 0: lines.append("    this." + init + ";")
         lines.append("}")
         return "\n    " + "\n    ".join(lines)
 
@@ -82,37 +83,48 @@ class gen_java8:
 
     # Set default value for property
     def prop_dft(self, prop):
-        dft = ''
-        if prop.kind == "String": return "\"" + prop.default + "\""
-        return str(prop.default)
+        dft = str(prop.default)
+        if prop.kind == "String": 
+            dft = "\"" + prop.default + "\""
+        return prop.identifier + " = " + dft + self.get_suffix(prop.kind)
     
     # Default params for new obj -> ex: this.bd = new BigDecimal(0)
-    def obj_dft(self, kind):
-        if kind == "BigDecimal": return "(0)"
-        return "()"
+    def init_obj(self, prop):
+        kind = self.collection_impl(prop.kind)
+        obj_suffix = "()"
+        if kind == "BigDecimal": obj_suffix = "(0)"
+        return prop.identifier + " = new " + kind + obj_suffix
 
     # Implement collection interfaces
     def collection_impl(self, kind):
-        impl = ''
-        if "List<" in kind:  kind = kind.replace("List<","ArrayList<")
-        if "Map<"  in kind:  kind = kind.replace("Map<","HashMap<")
-        if "Set<"  in kind:  kind = kind.replace("Set<","HashSet<")
+        impl = kind
+        if "List<" in kind:  impl = impl.replace("List<","ArrayList<")
+        if "Map<"  in kind:  impl = impl.replace("Map<","HashMap<")
+        if "Set<"  in kind:  impl = impl.replace("Set<","HashSet<")
         return impl
+    
+    # Initialize array -> ex: myArr = new String[]
+    def init_arr(self, prop):
+        if prop.max_items:
+            kind = prop.kind.replace("[]", "[" + str(prop.max_items) + "]")
+            return prop.identifier + " = new " + kind
+        raise Exception("Cannot initialize primitive array '" + str(prop) + "' without 'maxItems' declared.")
 
     # Build property initialize statement -> ex: this.arr = new String[10];
     def init_prop(self, prop):
         if prop.default:
-            return prop.identifier + " = " + self.prop_dft(prop) + self.get_suffix(prop.kind)
+            return self.prop_dft(prop)
         if "[]" in prop.kind:
-            if prop.max_items:
-                kind = prop.kind.replace("[]", "[" + str(prop.max_items) + "]")
-                return prop.identifier + " = new " + kind
-            raise Exception("Cannot initialize primitive array '" + str(prop) + "' without 'maxItems' declared.")
-        exclude = ["String","Integer","int","Double","double","Boolean","boolean","Float","float"]
-        if not prop.kind in exclude:
-            kind = self.collection_impl(prop.kind)
-            return prop.identifier + " = new " + kind + self.obj_dft(kind)
-        return None
+            return self.init_arr(prop)
+        if self.is_complex_type(prop.kind):
+            return self.init_obj(prop)
+        return ''
+
+    # Check if type is not a primitive value
+    def is_complex_type(self, kind):
+        return not kind in [
+            "String","Integer","int","Double","double","Boolean","boolean",
+            "Float","float","Byte","byte","short","Short","long","Long"]
 
     # Build annotations needed for a property
     def prop_annotation(self, identifier):
@@ -192,14 +204,17 @@ class gen_java8:
     def bld_annotations(self):
         annotations, imports = ([],[])
         if self.annotation_config and self.annotation_config["type"] == "jackson2":
-            imports = [
-              "com.fasterxml.jackson.annotation.JsonInclude",
-              "com.fasterxml.jackson.annotation.JsonProperty"
-            ]
+            imports = self.get_annotation_imports(self.annotation_config["type"])
             if "includes" in self.annotation_config.keys():
                 for inc in self.annotation_config["includes"]:
                     annotations.append("@JsonInclude(JsonInclude.Include." + inc + ")")
         return [annotations,imports]
+
+    # Get import statements for annotations
+    def get_annotation_imports(self, annotation_type):
+        if annotation_type == "jackson2":
+            return ["com.fasterxml.jackson.annotation.JsonInclude","com.fasterxml.jackson.annotation.JsonProperty"]
+        return []
 
     # Attempt to parse property to non-standard JSON schema type
     def attempt_parse(self, val):
@@ -260,12 +275,10 @@ class gen_java8:
         if "list<" in key: key = "list"
         if "set<"  in key: key = "set"
         if "map<"  in key: key = "map"
-            
-        #TODO: Move to constants
         imports = {
-            "list":          ["java.util.List", "java.util.ArrayList"],
-            "map":           ["java.util.Map" , "java.util.HashMap"],
-            "set":           ["java.util.Set" , "java.util.HashSet"],
-            "bigdecimal":    ["java.math.BigDecimal"]
+            "list":       ["java.util.List", "java.util.ArrayList"],
+            "map":        ["java.util.Map" , "java.util.HashMap"],
+            "set":        ["java.util.Set" , "java.util.HashSet"],
+            "bigdecimal": ["java.math.BigDecimal"]
         }
         return imports[key] if (key in imports) else None
