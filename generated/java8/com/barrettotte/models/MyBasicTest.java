@@ -24,11 +24,11 @@ public class MyBasicTest extends Thing {
     private List<Set<Address>> myNestedList;
 
     public MyBasicTest() {
-        this.myNumArray = new ArrayList<float>();
+        this.myNumArray = new ();
         this.myNumArray2 = new float[10];
-        this.myNumSet = new HashSet<Float>();
-        this.myStringList = new ArrayList<String>();
-        this.myNestedList = new ArrayList<HashSet<Address>>();
+        this.myNumSet = new ();
+        this.myStringList = new ();
+        this.myNestedList = new ();
     }
 
     @JsonProperty("myNumArray")

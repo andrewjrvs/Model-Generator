@@ -15,7 +15,7 @@ public class Library extends Building {
     private List<Book> books;
 
     public Library() {
-        this.books = new ArrayList<Book>();
+        this.books = new ();
     }
 
     @JsonProperty("books")

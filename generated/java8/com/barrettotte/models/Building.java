@@ -12,7 +12,7 @@ public class Building extends Thing {
     private Address address;
 
     public Building() {
-        this.address = new Address();
+        this.address = new ();
     }
 
     @JsonProperty("address")

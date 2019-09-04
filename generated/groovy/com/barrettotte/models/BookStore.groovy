@@ -13,6 +13,6 @@ import java.util.ArrayList
 class BookStore extends Building {
 
     @JsonProperty("books")
-    List<Book> books = new ArrayList<Book>()
+    List<Book> books = new ()
 
 }

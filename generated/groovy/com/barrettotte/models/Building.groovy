@@ -10,6 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 class Building extends Thing {
 
     @JsonProperty("address")
-    Address address = new Address()
+    Address address = new ()
 
 }

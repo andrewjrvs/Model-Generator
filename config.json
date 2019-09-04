@@ -39,6 +39,14 @@
           "NON_NULL"
         ]
       }
+    },
+    {
+      "name": "typescript",
+      "namingConvention": "jvm",
+      "namespace": "something",
+      "extension": "ts",
+      "output": "generated/typescript",
+      "annotation": null
     }
   ]
 }

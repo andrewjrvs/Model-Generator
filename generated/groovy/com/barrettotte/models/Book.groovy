@@ -21,9 +21,9 @@ class Book extends Thing {
     String isbn
 
     @JsonProperty("author")
-    Person author = new Person()
+    Person author = new ()
 
     @JsonProperty("price")
-    BigDecimal price = new BigDecimal(0)
+    BigDecimal price = new ()
 
 }

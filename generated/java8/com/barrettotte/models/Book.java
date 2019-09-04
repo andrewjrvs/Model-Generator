@@ -20,8 +20,8 @@ public class Book extends Thing {
     public Book() {
         this.genres = new String[10];
         this.pageLength = 25L;
-        this.author = new Person();
-        this.price = new BigDecimal(0);
+        this.author = new ();
+        this.price = new ();
     }
 
     @JsonProperty("genres")

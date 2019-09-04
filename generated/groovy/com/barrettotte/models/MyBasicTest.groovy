@@ -15,16 +15,16 @@ import java.util.HashSet
 class MyBasicTest extends Thing {
 
     @JsonProperty("myNumArray")
-    List<float> myNumArray = new ArrayList<float>()
+    List<float> myNumArray = new ()
 
     @JsonProperty("myNumArray2")
     float[] myNumArray2 = new float[10]
 
     @JsonProperty("myNumSet")
-    Set<Float> myNumSet = new HashSet<Float>()
+    Set<Float> myNumSet = new ()
 
     @JsonProperty("myStringList")
-    List<String> myStringList = new ArrayList<String>()
+    List<String> myStringList = new ()
 
     @JsonProperty("myInt")
     Integer myInt
@@ -36,6 +36,6 @@ class MyBasicTest extends Thing {
     boolean myPrimBool
 
     @JsonProperty("myNestedList")
-    List<Set<Address>> myNestedList = new ArrayList<HashSet<Address>>()
+    List<Set<Address>> myNestedList = new ()
 
 }
