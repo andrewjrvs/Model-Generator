@@ -49,7 +49,6 @@ class gen_typescript:
     # Generate source code from model
     def make_code(self, model):
         lines = [];
-        print(model.imports)
         for imp in model.imports:
             lines.append(("import { " + imp.split('/')[-1] + " } from './" + imp + "';") if (len(imp) > 0) else '')
         lines.append('\n' + '\n'.join(model.annotations))
